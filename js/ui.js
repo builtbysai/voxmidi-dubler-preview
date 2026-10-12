@@ -156,7 +156,7 @@ function selectTab(name, focusBtn = false) {
 }
 
 function wireTabs() {
-  const bar = $('.tabs');
+  const bar = $('.tabstrip');
   TABS.forEach((t, i) => {
     $('#tabbtn-' + t).addEventListener('click', () => selectTab(t));
   });
@@ -463,9 +463,9 @@ function renderTrainRows() {
     const isCustom = custom && custom[kind];
     row.innerHTML =
       '<div class="train-name">' + DRUM_LABEL[kind] +
-      (isCustom ? ' <span class="badge">trained</span>' : '') + '</div>' +
+      (isCustom ? ' <span class="trained-tag">(trained)</span>' : '') + '</div>' +
       '<div class="train-status" id="train-status-' + kind + '">Default sound model</div>' +
-      '<button class="btn small" data-train="' + kind + '">Train</button>';
+      '<button class="tbtn" data-train="' + kind + '">Train</button>';
     $('#train-rows').appendChild(row);
   }
   $$('#train-rows [data-train]').forEach(b =>
@@ -548,8 +548,8 @@ async function refreshMidiUI() {
 
 function setRecording(on) {
   const btn = $('#btn-record');
-  btn.classList.toggle('rec', on);
-  btn.querySelector('.rec-label').textContent = on ? 'Stop' : 'Record';
+  btn.classList.toggle('on', on);
+  btn.querySelector('.rec-label').textContent = on ? 'STOP' : 'REC';
   $('#btn-midi-dl').disabled = !(!on && app.engine.recorder.count > 0);
   $('#rec-dot').className = 'dot ' + (on ? 'recording' : 'idle');
   $('#rec-count').textContent = on ? 'Recording…' : app.engine.recorder.count + ' notes';

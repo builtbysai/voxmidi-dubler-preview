@@ -75,34 +75,37 @@
 <section id="studio" hidden aria-label="VOXMIDI studio">
   <header class="topbar">
     <div class="wordmark">VOXMIDI</div>
-    <span id="status-dot" class="dot idle" title="Engine status"></span>
-    <nav class="tabs" role="tablist" aria-label="VOXMIDI sections">
-      <button role="tab" id="tabbtn-play" aria-controls="tab-play" aria-selected="true">Play</button>
-      <button role="tab" id="tabbtn-train" aria-controls="tab-train" aria-selected="false" tabindex="-1">Train</button>
-      <button role="tab" id="tabbtn-setup" aria-controls="tab-setup" aria-selected="false" tabindex="-1">Setup</button>
-    </nav>
+    <div class="state" aria-label="Engine state">
+      <span id="status-dot" class="dot idle" title="Engine status"></span>
+      <span id="st-mic">Mic off</span>
+      <span id="st-midi">Built-in synth</span>
+      <span id="st-synth">Synth on</span>
+    </div>
     <span class="spacer"></span>
-    <button class="btn small rec" id="btn-record"><span class="rec-dot"></span><span class="rec-label">Record</span></button>
-    <button class="btn ghost small" id="btn-panic">Panic</button>
-    <button class="icon-btn" id="btn-help" title="How it works">?</button>
+    <button class="tbtn rec" id="btn-record"><span class="rec-dot" aria-hidden="true"></span><span class="rec-label">REC</span></button>
+    <button class="tbtn" id="btn-panic">Panic</button>
+    <button class="tbtn sq" id="btn-help" title="How it works" aria-label="How it works">?</button>
   </header>
+  <nav class="tabstrip" role="tablist" aria-label="VOXMIDI sections">
+    <button role="tab" id="tabbtn-play" aria-controls="tab-play" aria-selected="true">Play</button>
+    <button role="tab" id="tabbtn-train" aria-controls="tab-train" aria-selected="false" tabindex="-1">Train</button>
+    <button role="tab" id="tabbtn-setup" aria-controls="tab-setup" aria-selected="false" tabindex="-1">Setup</button>
+  </nav>
 
   <!-- ============ PLAY ============ -->
   <div id="tab-play" role="tabpanel" aria-labelledby="tabbtn-play">
-    <div class="play-grid">
-      <section class="panel triggers" aria-label="Beatbox triggers">
-        <h3>TRIGGERS</h3>
+    <div class="play-main">
+      <section class="zone triggers" aria-label="Beatbox triggers">
+        <div class="zone-label">Beatbox</div>
         <div id="drum-strip">
           <button class="pad" id="pad-kick">Kick</button>
           <button class="pad" id="pad-snare">Snare</button>
           <button class="pad" id="pad-hat">Hat</button>
         </div>
-        <button class="btn ghost small" id="btn-goto-train">Train pads to my voice</button>
-        <p class="panel-note">Make a kick, snare, or hat sound with your mouth. VOXMIDI sorts them by brightness.</p>
+        <button class="textbtn" id="btn-goto-train">Train pads to my voice</button>
       </section>
 
-      <section class="panel pitch-panel" aria-label="Pitch">
-        <h3>PITCH</h3>
+      <section class="zone pitch" aria-label="Pitch">
         <div class="wheel-wrap">
           <canvas id="wheel" role="img" aria-label="Pitch wheel: no note detected"></canvas>
         </div>
@@ -134,36 +137,25 @@
       <div id="keyboard" role="group" aria-label="Piano keyboard, playable"></div>
     </div>
 
-    <div class="session">
-      <div class="session-head">
-        <span id="rec-dot" class="dot idle" aria-hidden="true"></span>
-        <span id="rec-count">0 notes</span>
-        <span class="spacer"></span>
-        <button class="btn ghost small" id="btn-midi-dl" disabled>Download MIDI</button>
-        <button class="btn ghost small" id="btn-clear-roll">Clear</button>
-      </div>
-      <div class="roll-wrap"><canvas id="roll"></canvas></div>
-    </div>
-
-    <div class="statusbar" aria-label="Status">
-      <span id="st-mic">Mic off</span>
-      <span class="sep" aria-hidden="true"></span>
-      <span id="st-midi">MIDI: Built-in synth</span>
-      <span class="sep" aria-hidden="true"></span>
-      <span id="st-synth">Synth on</span>
+    <div class="sessionbar">
+      <span id="rec-dot" class="dot idle" aria-hidden="true"></span>
+      <span id="rec-count">0 notes</span>
+      <span class="spacer"></span>
+      <button class="textbtn" id="btn-midi-dl" disabled>Download MIDI</button>
+      <button class="textbtn" id="btn-clear-roll">Clear</button>
     </div>
   </div>
 
   <!-- ============ TRAIN ============ -->
   <div id="tab-train" role="tabpanel" aria-labelledby="tabbtn-train" hidden>
-    <section class="panel train-panel" aria-label="Train drum pads">
-      <h3>TRAIN PADS</h3>
+    <section class="zone train-zone" aria-label="Train drum pads">
+      <div class="zone-label">Train pads</div>
       <p>Everyone beatboxes differently. Tap Train, then make that sound three times. VOXMIDI learns your version.</p>
-      <p id="train-mic-note" class="panel-note" hidden>Training needs the microphone. <button class="linklike" id="btn-train-mic">Enable it</button></p>
+      <p id="train-mic-note" class="zone-note" hidden>Training needs the microphone. <button class="textbtn" id="btn-train-mic">Enable it</button></p>
       <div id="train-rows"></div>
       <p id="train-hint"></p>
       <div class="btn-row">
-        <button class="btn ghost small" id="train-reset">Reset to defaults</button>
+        <button class="tbtn" id="train-reset">Reset to defaults</button>
       </div>
     </section>
   </div>
@@ -171,28 +163,28 @@
   <!-- ============ SETUP ============ -->
   <div id="tab-setup" role="tabpanel" aria-labelledby="tabbtn-setup" hidden>
     <div class="setup-grid">
-      <section class="panel" aria-label="Microphone">
-        <h3>MICROPHONE</h3>
+      <section class="zone" aria-label="Microphone">
+        <div class="zone-label">Microphone</div>
         <div class="field">
           <label for="mic-select-studio" id="mic-select-studio-label" hidden>Input device</label>
           <select id="mic-select-studio" hidden></select>
-          <p id="mic-studio-status" class="panel-note">Microphone is off.</p>
-          <button class="btn ghost small" id="btn-mic-studio">Enable microphone</button>
+          <p id="mic-studio-status" class="zone-note">Microphone is off.</p>
+          <button class="tbtn" id="btn-mic-studio">Enable microphone</button>
         </div>
       </section>
 
-      <section class="panel" aria-label="MIDI output">
-        <h3>MIDI OUTPUT</h3>
+      <section class="zone" aria-label="MIDI output">
+        <div class="zone-label">MIDI output</div>
         <div class="field" id="midi-select-wrap">
           <label for="midi-select">Output device</label>
           <select id="midi-select"><option value="">Built-in synth only</option></select>
         </div>
-        <p id="midi-status" class="panel-note"></p>
+        <p id="midi-status" class="zone-note"></p>
         <div class="toggle-row"><span>Local synth sound</span><input type="checkbox" id="tgl-local"></div>
       </section>
 
-      <section class="panel" aria-label="Pitch behavior">
-        <h3>PITCH BEHAVIOR</h3>
+      <section class="zone" aria-label="Pitch behavior">
+        <div class="zone-label">Pitch behavior</div>
         <div class="toggle-row"><span>Stay in key</span><input type="checkbox" id="tgl-quantize"></div>
         <div class="field">
           <label for="bend-select">Pitch bend</label>
