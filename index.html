@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VOXMIDI: your voice is the instrument</title>
+<meta name="description" content="Hum, sing, or whistle into your mic and play any synth in real time. Beatbox the drums. Send MIDI to your DAW.">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<!-- ==================== ONBOARDING ==================== -->
+<section id="onboarding" aria-label="Setup">
+  <div class="ob-card">
+    <div class="wordmark">VOXMIDI</div>
+    <div class="ob-dots" aria-hidden="true">
+      <span class="ob-dot"></span><span class="ob-dot"></span><span class="ob-dot"></span><span class="ob-dot"></span>
+    </div>
+
+    <div class="ob-step" id="ob-welcome">
+      <h1>Your voice is the instrument.</h1>
+      <p class="ob-sub">Hum a melody, hear it played back as a synth. Beatbox, get drums. Send the MIDI straight to your DAW. No installs, no accounts.</p>
+      <ul class="ob-feats">
+        <li><b>Hum, sing, or whistle</b> to play notes in real time</li>
+        <li><b>Beatbox</b> to trigger kick, snare, and hat</li>
+        <li><b>Record</b> your session and download it as a MIDI file</li>
+      </ul>
+      <button class="btn" id="btn-begin">Set up your mic</button>
+      <div class="ob-nav"><button class="linklike" data-skip>Skip setup, I know what I am doing</button></div>
+    </div>
+
+    <div class="ob-step" id="ob-mic" hidden>
+      <h2>First, your microphone</h2>
+      <p class="ob-sub">Your browser is about to ask for microphone access. Say yes. VOXMIDI listens on this device only: nothing is recorded or uploaded unless you press Record, and even then the file stays with you.</p>
+      <button class="btn" id="btn-mic">Enable microphone</button>
+      <p id="mic-error" hidden></p>
+      <label id="mic-select-label" hidden for="mic-select">Input device</label>
+      <select id="mic-select" hidden></select>
+      <p id="mic-hint" class="privacy-note"></p>
+      <div class="ob-nav">
+        <button id="ob-back">Back</button>
+        <button class="btn ghost" id="btn-to-level" disabled>Continue</button>
+        <button class="linklike" data-skip>Skip</button>
+      </div>
+    </div>
+
+    <div class="ob-step" id="ob-level" hidden>
+      <h2>Check your level</h2>
+      <p class="ob-sub">Make some noise. The bar should dance in the green. If it barely moves, raise Sensitivity on the Play screen later.</p>
+      <div class="meter-label">Input level</div>
+      <div class="meter"><div id="ob-meter-fill"></div></div>
+      <p id="level-state">Make some noise…</p>
+      <div class="ob-nav">
+        <button id="ob-back2" class="linklike" onclick="document.querySelector('#ob-back').click()">Back</button>
+        <button class="btn ghost" id="btn-to-hum">Continue</button>
+        <button class="linklike" data-skip>Skip</button>
+      </div>
+    </div>
+
+    <div class="ob-step" id="ob-hum" hidden>
+      <h2>Hum one steady note</h2>
+      <p class="ob-sub">Hold any note for a second. When VOXMIDI locks on, you will see it here.</p>
+      <div class="hum-note" id="hum-note">–</div>
+      <p id="hum-status">Listening…</p>
+      <div class="ob-nav">
+        <button class="btn" id="btn-start" disabled>Waiting for a note…</button>
+        <button class="linklike" data-skip>Skip, take me in</button>
+      </div>
+      <p class="privacy-note">Tip: whistling tracks the most cleanly. Humming works too.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== STUDIO ==================== -->
+<section id="studio" hidden aria-label="VOXMIDI studio">
+  <header class="topbar">
+    <div class="wordmark">VOXMIDI</div>
+    <span id="status-dot" class="dot idle" title="Engine status"></span>
+    <nav class="tabs" role="tablist" aria-label="VOXMIDI sections">
+      <button role="tab" id="tabbtn-play" aria-controls="tab-play" aria-selected="true">Play</button>
+      <button role="tab" id="tabbtn-train" aria-controls="tab-train" aria-selected="false" tabindex="-1">Train</button>
+      <button role="tab" id="tabbtn-setup" aria-controls="tab-setup" aria-selected="false" tabindex="-1">Setup</button>
+    </nav>
+    <span class="spacer"></span>
+    <button class="btn small rec" id="btn-record"><span class="rec-dot"></span><span class="rec-label">Record</span></button>
+    <button class="btn ghost small" id="btn-panic">Panic</button>
+    <button class="icon-btn" id="btn-help" title="How it works">?</button>
+  </header>
+
+  <!-- ============ PLAY ============ -->
+  <div id="tab-play" role="tabpanel" aria-labelledby="tabbtn-play">
+    <div class="play-grid">
+      <section class="panel triggers" aria-label="Beatbox triggers">
+        <h3>TRIGGERS</h3>
+        <div id="drum-strip">
+          <button class="pad" id="pad-kick">Kick</button>
+          <button class="pad" id="pad-snare">Snare</button>
+          <button class="pad" id="pad-hat">Hat</button>
+        </div>
+        <button class="btn ghost small" id="btn-goto-train">Train pads to my voice</button>
+        <p class="panel-note">Make a kick, snare, or hat sound with your mouth. VOXMIDI sorts them by brightness.</p>
+      </section>
+
+      <section class="panel pitch-panel" aria-label="Pitch">
+        <h3>PITCH</h3>
+        <div class="wheel-wrap">
+          <canvas id="wheel" role="img" aria-label="Pitch wheel: no note detected"></canvas>
+        </div>
+        <div class="play-controls">
+          <div class="field">
+            <label for="key-select">Key</label>
+            <select id="key-select"></select>
+          </div>
+          <div class="field">
+            <label for="scale-select">Scale</label>
+            <select id="scale-select"></select>
+          </div>
+          <div class="field">
+            <label for="octave-select">Octave</label>
+            <select id="octave-select">
+              <option value="-2">-2</option><option value="-1">-1</option>
+              <option value="0" selected>0</option><option value="1">+1</option><option value="2">+2</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="gain-range">Sensitivity <span id="gain-val"></span></label>
+            <input type="range" id="gain-range" min="5" max="80" step="1">
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="keyboard-wrap">
+      <div id="keyboard" role="group" aria-label="Piano keyboard, playable"></div>
+    </div>
+
+    <div class="session">
+      <div class="session-head">
+        <span id="rec-dot" class="dot idle" aria-hidden="true"></span>
+        <span id="rec-count">0 notes</span>
+        <span class="spacer"></span>
+        <button class="btn ghost small" id="btn-midi-dl" disabled>Download MIDI</button>
+        <button class="btn ghost small" id="btn-clear-roll">Clear</button>
+      </div>
+      <div class="roll-wrap"><canvas id="roll"></canvas></div>
+    </div>
+
+    <div class="statusbar" aria-label="Status">
+      <span id="st-mic">Mic off</span>
+      <span class="sep" aria-hidden="true"></span>
+      <span id="st-midi">MIDI: Built-in synth</span>
+      <span class="sep" aria-hidden="true"></span>
+      <span id="st-synth">Synth on</span>
+    </div>
+  </div>
+
+  <!-- ============ TRAIN ============ -->
+  <div id="tab-train" role="tabpanel" aria-labelledby="tabbtn-train" hidden>
+    <section class="panel train-panel" aria-label="Train drum pads">
+      <h3>TRAIN PADS</h3>
+      <p>Everyone beatboxes differently. Tap Train, then make that sound three times. VOXMIDI learns your version.</p>
+      <p id="train-mic-note" class="panel-note" hidden>Training needs the microphone. <button class="linklike" id="btn-train-mic">Enable it</button></p>
+      <div id="train-rows"></div>
+      <p id="train-hint"></p>
+      <div class="btn-row">
+        <button class="btn ghost small" id="train-reset">Reset to defaults</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ SETUP ============ -->
+  <div id="tab-setup" role="tabpanel" aria-labelledby="tabbtn-setup" hidden>
+    <div class="setup-grid">
+      <section class="panel" aria-label="Microphone">
+        <h3>MICROPHONE</h3>
+        <div class="field">
+          <label for="mic-select-studio" id="mic-select-studio-label" hidden>Input device</label>
+          <select id="mic-select-studio" hidden></select>
+          <p id="mic-studio-status" class="panel-note">Microphone is off.</p>
+          <button class="btn ghost small" id="btn-mic-studio">Enable microphone</button>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="MIDI output">
+        <h3>MIDI OUTPUT</h3>
+        <div class="field" id="midi-select-wrap">
+          <label for="midi-select">Output device</label>
+          <select id="midi-select"><option value="">Built-in synth only</option></select>
+        </div>
+        <p id="midi-status" class="panel-note"></p>
+        <div class="toggle-row"><span>Local synth sound</span><input type="checkbox" id="tgl-local"></div>
+      </section>
+
+      <section class="panel" aria-label="Pitch behavior">
+        <h3>PITCH BEHAVIOR</h3>
+        <div class="toggle-row"><span>Stay in key</span><input type="checkbox" id="tgl-quantize"></div>
+        <div class="field">
+          <label for="bend-select">Pitch bend</label>
+          <select id="bend-select">
+            <option value="follow">Follow my voice</option>
+            <option value="off">Off (snap to notes)</option>
+          </select>
+        </div>
+        <div class="toggle-row"><span>Loud means harder hits</span><input type="checkbox" id="tgl-velocity"></div>
+        <div class="toggle-row"><span>Beatbox triggers</span><input type="checkbox" id="tgl-drums"></div>
+      </section>
+    </div>
+    <footer class="foot">
+      VOXMIDI runs entirely in your browser. Audio never leaves your device.<br>
+      <a href="https://github.com/builtbysai/VOXMIDI">github.com/builtbysai/VOXMIDI</a>
+    </footer>
+  </div>
+</section>
+
+<!-- ==================== MODALS ==================== -->
+<div class="modal" id="help-modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <h2 id="help-title">How VOXMIDI works</h2>
+    <ul class="help-list">
+      <li><b>Sing, hum, or whistle</b> into your mic. VOXMIDI tracks the pitch 80 times a second and plays it as MIDI notes.</li>
+      <li><b>Stay in key</b> snaps your notes to the scale you pick, so even rough humming lands on real notes.</li>
+      <li><b>Pitch bend: Follow my voice</b> glides between notes like your voice does. Off snaps cleanly to each note.</li>
+      <li><b>Beatbox</b> a kick, snare, or hat. If it misfires, train the pads to your mouth sounds.</li>
+      <li><b>MIDI output:</b> pick a device to drive a DAW or hardware synth (Chrome, Edge, or Firefox). Otherwise the built-in synth plays.</li>
+      <li><b>Record</b> captures everything, then <b>Download MIDI</b> gives you a standard .mid file for your DAW.</li>
+      <li><b>Panic</b> kills all sound instantly if a note sticks.</li>
+    </ul>
+    <div class="btn-row"><button class="btn small" id="help-close">Back to the music</button></div>
+  </div>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>
